@@ -1,0 +1,32 @@
+[
+    {
+        "type": "banner",
+        "image_url": "https://tonmarketcap.net/img/ad.png",
+        "link": "https://t.me/ton_nick",
+        "text": null
+    },
+    {
+        "type": "banner",
+        "image_url": "https://tonmarketcap.net/img/betkingy.png",
+        "link": "https://betkingy.com",
+        "text": null
+    },
+    {
+        "type": "text",
+        "image_url": null,
+        "link": "https://t.me/cryptoctrl_bot",
+        "text": "CryptoControl - bot for control your crypto portfolio!"
+    },
+    {
+        "type": "text",
+        "image_url": null,
+        "link": "https://betkingy.com",
+        "text": "BetKingy - Service for betting on upcoming events based on TON."
+    },
+    {
+        "type": "text",
+        "image_url": null,
+        "link": "https://tsivx.ru",
+        "text": "ого! таск обновил рекламу1111111"
+    }
+]
