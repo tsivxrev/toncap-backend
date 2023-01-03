@@ -1,29 +1,34 @@
 [
     {
+        "id": "uuidv4_1",
         "type": "banner",
         "image_url": "https://tonmarketcap.net/img/ad.png",
         "link": "https://t.me/ton_nick",
         "text": null
     },
     {
+        "id": "uuidv4_2",
         "type": "banner",
         "image_url": "https://tonmarketcap.net/img/betkingy.png",
         "link": "https://betkingy.com",
         "text": null
     },
     {
+        "id": "uuidv4_3",
         "type": "text",
         "image_url": null,
         "link": "https://t.me/cryptoctrl_bot",
         "text": "CryptoControl - bot for control your crypto portfolio!"
     },
     {
+        "id": "uuidv4_4",
         "type": "text",
         "image_url": null,
         "link": "https://betkingy.com",
         "text": "BetKingy - Service for betting on upcoming events based on TON."
     },
     {
+        "id": "uuidv4_5",
         "type": "text",
         "image_url": null,
         "link": "https://tsivx.ru",

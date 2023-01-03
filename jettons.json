@@ -1,0 +1,278 @@
+{
+    "bolt": {
+        "contract": "EQD0vdSA_NedR9uvbgN9EikRX-suesDxGeFg69XQMavfLqIw",
+        "decimals": 9,
+        "supply": 6000693.317361,
+        "image": "https://ton.org.in/assets/images/bolt.png",
+        "markets": {
+            "rocket": {
+                "contract": "BOLT",
+                "image": "https://tonmarketcap.net/img/rocket.jpg",
+                "name": "TON%20Rocket%20Bot",
+                "template": "rocket",
+                "type": "CEX",
+                "url": "http://t.me/tonRocketBot"
+            },
+            "scaleton": {
+                "contract": "UQDOu_x7EUZXCln7C_XP97lQlNLKtPs7zRP2C7X3k7eUZo8r",
+                "image": "https://dedust.io/icons/favicons/apple-touch-icon.png",
+                "name": "DeDust",
+                "template": "scaleton",
+                "type": "DEX",
+                "url": "https://dedust.io"
+            },
+            "tonswap": {
+                "contract": "EQDaawC8QbsAidBa88rB8Ng4ZqtHxYYXY9fCF3DKoJanOi32",
+                "image": "https://tonswap.org/static/media/ton-logo.7a380671780c3353900722237a105ecd.svg",
+                "name": "TONSwap",
+                "template": "tonswap",
+                "type": "DEX",
+                "url": "https://t.me/tonswap"
+            }
+        },
+        "links": {
+            "t.me": "https://t.me/boltfoundation"
+        },
+        "name": "Huebel%20bolt",
+        "ticker": "BOLT"
+    },
+    "fnz": {
+        "contract": "EQDCJL0iQHofcBBvFBHdVG233Ri2V4kCNFgfRT-gqAd3Oc86",
+        "decimals": 9,
+        "supply": 2100000000,
+        "image": "https://i.tonscan.org/resize/fGhH_Nh-3aCBCZHNOf7YVavlUXB0gYKOpdDKhxURB8Y/f:jpg/rs:fit:72:72:0/aHR0cHM6Ly9tZWRpYS5mYW56LmVlL2ltYWdlcy85MWVlOTM4YTkyOTM0NjU2YTAxMTMxYzU2OWIzNzdiNi5wbmc.jpg",
+        "markets": {
+            "stonfi": {
+                "contract": "0:c224bd22407a1f70106f1411dd546db7dd18b657890234581f453fa0a8077739",
+                "image": "https://static.ston.fi/favicon/apple-touch-icon.png",
+                "name": "Ston.fi",
+                "template": "stonfi",
+                "type": "DEX",
+                "url": "https://ston.fi/"
+            }
+        },
+        "links": {
+            "Fanz.ee": "https://fanz.ee",
+            "t.me": "https://t.me/fanzeelabs"
+        },
+        "name": "Fanzee",
+        "ticker": "FNZ"
+    },
+    "grbs": {
+        "contract": "EQBj7uoIVsngmS-ayOz1nHENjZkjTt5mXB4uGa83hmcqq2wA",
+        "decimals": 9,
+        "supply": 10000000,
+        "image": "https://ton.org.in/assets/images/grbs.png",
+        "markets": {
+            "rocket": {
+                "contract": "GRBS",
+                "image": "https://tonmarketcap.net/img/rocket.jpg",
+                "name": "TON%20Rocket%20Bot",
+                "template": "rocket",
+                "type": "CEX",
+                "url": "http://t.me/tonRocketBot"
+            }
+        },
+        "links": {
+            "Grabscape.io": "https://grabscape.io/",
+            "t.me": "https://t.me/grabscape_ru"
+        },
+        "name": "Grabscape",
+        "ticker": "GRBS"
+    },
+    "hedge": {
+        "contract": "EQBiJ8dSbp3_YAb_KuC64zCrFqQTsFbUee5tbzr5el_HEDGE",
+        "decimals": 9,
+        "supply": 5000000,
+        "image": "https://ton.org.in/assets/images/hedge.png",
+        "markets": {
+            "rocket": {
+                "contract": "HEDGE",
+                "image": "https://tonmarketcap.net/img/rocket.jpg",
+                "name": "TON%20Rocket%20Bot",
+                "template": "rocket",
+                "type": "CEX",
+                "url": "http://t.me/tonRocketBot"
+            }
+        },
+        "links": {
+            "t.me": "https://t.me/wallstreethedgehogs"
+        },
+        "name": "HedgeHogs",
+        "ticker": "HEDGE"
+    },
+    "scale": {
+        "contract": "EQBlqsm144Dq6SjbPI4jjZvA1hqTIP3CvHovbIfW_t-SCALE",
+        "decimals": 9,
+        "supply": 17811231.8219702,
+        "image": "https://ton.org.in/assets/images/scale.png",
+        "markets": {
+            "rocket": {
+                "contract": "SCALE",
+                "image": "https://tonmarketcap.net/img/rocket.jpg",
+                "name": "TON%20Rocket%20Bot",
+                "template": "rocket",
+                "type": "CEX",
+                "url": "http://t.me/tonRocketBot"
+            },
+            "scaleton": {
+                "contract": "UQA1ZM9KUwGz0APPLyOtsUlMWzcivIzMGSOlT1toiD-CbuTy",
+                "image": "https://dedust.io/icons/favicons/apple-touch-icon.png",
+                "name": "DeDust",
+                "template": "scaleton",
+                "type": "DEX",
+                "url": "https://dedust.io"
+            }
+        },
+        "links": {
+            "Scaleton.io": "https://scaleton.io",
+            "DeDust.io": "https://dedust.io",
+            "t.me": "https://t.me/scaleton"
+        },
+        "name": "Scaleton",
+        "ticker": "SCALE"
+    },
+    "take": {
+        "contract": "EQAalp4hV8Ygl2lGxkVomZdsqY7McpqV6WBzm6GT8ziCXs_L",
+        "decimals": 9,
+        "supply": 7000000,
+        "image": "https://ipfs.io/ipfs/bafkreiayyylejgct6qme2xmnfy4eug3uc4tefyffrw4y3rhcojpq2colga",
+        "markets": {
+            "rocket": {
+                "contract": "TAKE",
+                "image": "https://tonmarketcap.net/img/rocket.jpg",
+                "name": "TON%20Rocket%20Bot",
+                "template": "rocket",
+                "type": "CEX",
+                "url": "http://t.me/tonRocketBot"
+            },
+            "tonswap": {
+                "contract": "EQABNXuJt9Z-2v6bVeBrCl2tH15uT3M0WTGAKv3Lw5zCQsKu",
+                "image": "https://tonswap.org/static/media/ton-logo.7a380671780c3353900722237a105ecd.svg",
+                "name": "TONSwap",
+                "template": "tonswap",
+                "type": "DEX",
+                "url": "https://t.me/tonswap"
+            }
+        },
+        "links": {
+            "t.me": "https://t.me/tontake",
+            "Zernosklad": "https://zernosklad.com"
+        },
+        "name": "TonTake",
+        "ticker": "TAKE"
+    },
+    "tic": {
+        "contract": "EQBXHCDdBA6Vgd2zi-yRpFk8m04vn3ROWYU9GRZfpvrim1M5",
+        "decimals": 9,
+        "supply": 1000000,
+        "image": "https://tonisland.github.io/img/logo512.png",
+        "markets": {
+            "rocket": {
+                "contract": "TIC",
+                "image": "https://tonmarketcap.net/img/rocket.jpg",
+                "name": "TON%20Rocket%20Bot",
+                "template": "rocket",
+                "type": "CEX",
+                "url": "http://t.me/tonRocketBot"
+            }
+        },
+        "links": {
+            "t.me": "https://t.me/ton_island"
+        },
+        "name": "TON%20Island",
+        "ticker": "TIC"
+    },
+    "tnx": {
+        "contract": "EQB-ajMyi5-WKIgOHnbOGApfckUGbl6tDk3Qt8PKmb-xLAvp",
+        "decimals": 9,
+        "supply": 1000000000,
+        "image": "https://ton.org.in/assets/images/tnx.png",
+        "markets": {
+            "jettonExchange": {
+                "contract": "TNX",
+                "image": "https://tonmarketcap.net/img/jettonexchange.jpg",
+                "name": "Jetton%20Exchange",
+                "template": "jettonExchange",
+                "type": "CEX",
+                "url": "http://t.me/JettonExBot"
+            },
+            "rocket": {
+                "contract": "TNX",
+                "image": "https://tonmarketcap.net/img/rocket.jpg",
+                "name": "TON%20Rocket%20Bot",
+                "template": "rocket",
+                "type": "CEX",
+                "url": "http://t.me/tonRocketBot"
+            }
+        },
+        "links": {
+            "t.me": "https://t.me/Tonex_app",
+            "Tonex.app": "https://tonex.app"
+        },
+        "name": "Tonex",
+        "ticker": "TNX"
+    },
+    "ambr": {
+        "contract": "EQCcLAW537KnRg_aSPrnQJoyYjOZkzqYp6FVmRUvN1crSazV",
+        "decimals": 9,
+        "supply": 10000000000,
+        "image": "https://i.tonscan.org/resize/EFWQVfLVClJVPAR1d7s0Lp32JCZ1CxhEko_ZhDKUGXc/f:jpg/rs:fit:144:144:0/aHR0cDovL2lwZnMubG9jYWwvYmFmeWJlaWNzdm96bnRwNWlhdHdhZDMycWd2aXNqeHNob3A2MmVyd29oYXFuYWpnc21rbDc3YjZ1aDQ.jpg",
+        "markets": {
+            "stonfi": {
+                "contract": "0:9c2c05b9dfb2a7460fda48fae7409a32623399933a98a7a15599152f37572b49",
+                "image": "https://static.ston.fi/favicon/apple-touch-icon.png",
+                "name": "Ston.fi",
+                "template": "stonfi",
+                "type": "DEX",
+                "url": "https://ston.fi/"
+            },
+            "rocket": {
+                "contract": "AMBR",
+                "image": "https://tonmarketcap.net/img/rocket.jpg",
+                "name": "TON%20Rocket%20Bot",
+                "template": "rocket",
+                "type": "CEX",
+                "url": "http://t.me/tonRocketBot"
+            },
+            "scaleton": {
+                "contract": "UQAVGvQAHFtPtwIkQQOKi_ecgPzMFx0F-8qJ2NYZCd--lMKa",
+                "image": "https://dedust.io/icons/favicons/apple-touch-icon.png",
+                "name": "DeDust",
+                "template": "scaleton",
+                "type": "DEX",
+                "url": "https://dedust.io"
+            }
+        },
+        "links": {
+            "Tonwhales.com": "https://tonwhales.com/",
+            "Whales News": "https://t.me/tonwhalesnews",
+            "Whales NFT": "https://t.me/tonwhalesnft",
+            "Whales NFT EN": "https://t.me/tonwhalesnften"
+        },
+        "name": "Ambra",
+        "ticker": "AMBR"
+    },
+    "tgr": {
+        "contract": "EQAvDfWFG0oYX19jwNDNBBL1rKNT9XfaGP9HyTb5nb2Eml6y",
+        "decimals": 9,
+        "supply": 960991.118981,
+        "image": "https://tegro.io/tgr.png",
+        "markets": {
+            "jettonExchange": {
+                "contract": "TGR",
+                "image": "https://tonmarketcap.net/img/jettonexchange.jpg",
+                "name": "Jetton%20Exchange",
+                "template": "jettonExchange",
+                "type": "CEX",
+                "url": "http://t.me/JettonExBot"
+            }
+        },
+        "links": {
+            "Tegro.io": "https://tegro.io/",
+            "t.me": "https://t.me/tegromoney"
+        },
+        "name": "Tegro",
+        "ticker": "TGR"
+    }
+}
