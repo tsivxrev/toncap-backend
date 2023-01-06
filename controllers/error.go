@@ -7,7 +7,7 @@ import (
 )
 
 func NewError(c *gin.Context, status int, err error) {
-	c.JSON(status, &types.HTTPError{
+	c.AbortWithStatusJSON(status, &types.HTTPError{
 		Code:    status,
 		Message: err.Error(),
 	})

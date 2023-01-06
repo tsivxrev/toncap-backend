@@ -5,6 +5,7 @@ import (
 	"time"
 	"toncap-backend/config"
 	"toncap-backend/controllers"
+	"toncap-backend/middlewares"
 
 	"github.com/gin-contrib/cache"
 	"github.com/gin-contrib/cache/persistence"
@@ -17,27 +18,23 @@ func Router() *gin.Engine {
 
 	cacheStore := persistence.NewInMemoryStore(time.Second)
 
-	api := router.Group("/api/")
+	router.GET("/ads", controllers.GetAds)
+	router.GET("/currency", cache.CachePage(cacheStore, config.CURRENCY_UPDATE_TIME, controllers.GetCurrency))
 
-	api.GET("/ads", cache.CachePage(cacheStore, config.ADS_UPDATE_TIME, controllers.GetAds))
-	//api.GET("/ads/:id", cache.CachePage(cacheStore, config.ADS_UPDATE_TIME, controllers.GetAd))
-	//api.POST("/ads", controllers.AddAd)
-	//api.PATCH("/ads/:id", controllers.EditAd)
-	//api.DELETE("/ads/:id", controllers.RemoveAd)
+	router.Use(middlewares.Auth)
 
-	api.GET("/prices", controllers.GetPrices)
-	api.GET("/prices/:id", controllers.GetPrice)
-	api.POST("/prices", controllers.AddPrice)
-	api.PATCH("/prices", controllers.EditPrice)
-	api.DELETE("/prices", controllers.RemovePrice)
+	router.GET("/ads/_update", controllers.UpdateAds)
+	router.GET("/jettons/_update", controllers.UpdateJettons)
 
-	api.GET("/currency", cache.CachePage(cacheStore, config.CURRENCY_UPDATE_TIME, controllers.GetCurrency))
+	router.GET("/token/validate/:token", controllers.ValidateTokenController)
+	router.GET("/token/generate", controllers.GenerateTokenController)
 
-	api.GET("/jettons", cache.CachePage(cacheStore, config.JETTONS_UPDATE_TIME, controllers.GetJettons))
-	api.GET("/jettons/:id", cache.CachePage(cacheStore, config.JETTONS_UPDATE_TIME, controllers.GetJetton))
-	//api.POST("/jettons/:id", controllers.AddJetton)
-	//api.PATCH("/jettons/:id", controllers.EditJetton)
-	//api.DELETE("/jettons/:id", controllers.RemoveJetton)
+	router.GET("/prices", controllers.GetPrices)
+	router.GET("/prices/:id", controllers.GetPrice)
+	router.POST("/prices", controllers.AddPrice)
+
+	router.GET("/jettons", controllers.GetJettons)
+	router.GET("/jettons/:id", controllers.GetJetton)
 
 	router.NoMethod(func(c *gin.Context) {
 		controllers.NewError(c, 400, errors.New("method is not allowed"))

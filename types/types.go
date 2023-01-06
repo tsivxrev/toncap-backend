@@ -56,3 +56,10 @@ type Jetton struct {
 	Name     string                  `json:"name"`
 	Ticker   string                  `json:"ticker"`
 }
+
+type TokenData struct {
+	UserId    int    `json:"user_id" binding:"required"`
+	Type      string `json:"type" binding:"required,oneof=default service"`
+	Limit     int    `json:"limit" binding:"required"`
+	ExpiresIn int64  `json:"expires_in" binding:"required,gte=0"`
+}

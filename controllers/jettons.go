@@ -1,9 +1,7 @@
 package controllers
 
 import (
-	"encoding/json"
 	"errors"
-	"os"
 	"toncap-backend/config"
 	"toncap-backend/types"
 
@@ -11,18 +9,29 @@ import (
 )
 
 func getJettons() (map[string]types.Jetton, error) {
-	jettonsFile, err := os.ReadFile(config.JETTONS_FILE)
-	if err != nil {
-		return nil, nil
+	//	jettonsFile, err := os.ReadFile(config.JETTONS_FILE)
+	//	if err != nil {
+	//		return nil, nil
+	//	}
+	//
+	//	var jettons map[string]types.Jetton
+	//	err = json.Unmarshal(jettonsFile, &jettons)
+	//	if err != nil {
+	//		return nil, nil
+	//	}
+	//
+	//	return jettons, nil
+	return config.JETTONS, nil
+}
+
+func UpdateJettons(c *gin.Context) {
+	if c.GetString("auth_token_type") == "service" {
+		config.FetchJettons()
+		c.JSON(200, config.JETTONS)
+		return
 	}
 
-	var jettons map[string]types.Jetton
-	err = json.Unmarshal(jettonsFile, &jettons)
-	if err != nil {
-		return nil, nil
-	}
-
-	return jettons, nil
+	NewError(c, 403, errors.New("access denied"))
 }
 
 func GetJettons(c *gin.Context) {
@@ -31,7 +40,18 @@ func GetJettons(c *gin.Context) {
 		NewError(c, 500, err)
 	}
 
-	c.JSON(200, jettons)
+	keys := make([]string, 0, len(jettons))
+	for k := range jettons {
+		keys = append(keys, k)
+	}
+
+	c.JSON(200, gin.H{
+		"all": keys,
+		"tops": gin.H{
+			"new":     []string{"fnz", "scale", "ambr"},
+			"popular": []string{"fnz", "grbs", "hedge", "ambr", "take", "bolt"},
+		},
+	})
 }
 
 func GetJetton(c *gin.Context) {
