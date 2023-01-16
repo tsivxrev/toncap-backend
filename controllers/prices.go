@@ -127,6 +127,20 @@ func getPrice(contract string) gin.H {
 	result := database.DB.Limit(14880).Find(&prices, "contract = ?", contract)
 	logger.Log.Debugf("len: %v result: %v", len(prices), result)
 
+	if len(prices) < 14880 {
+		remaining := 14880 - len(prices)
+
+		for i := 0; i < remaining; i++ {
+			prices = append(prices, types.Price{
+				Contract: prices[0].Contract,
+				Ticker:   prices[0].Ticker,
+				Market:   prices[0].Market,
+				Volume:   0,
+				Price:    0,
+			})
+		}
+	}
+
 	averages := map[string]map[string]float64{
 		"actual": {
 			"price":  0,

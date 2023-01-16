@@ -18,6 +18,8 @@ func Router() *gin.Engine {
 
 	cacheStore := persistence.NewInMemoryStore(time.Second)
 
+	router.Use(gin.CustomRecovery(middlewares.ErrorHandler))
+
 	router.GET("/ads", controllers.GetAds)
 	router.GET("/currency", cache.CachePage(cacheStore, config.CURRENCY_UPDATE_TIME, controllers.GetCurrency))
 
