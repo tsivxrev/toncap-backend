@@ -22,6 +22,7 @@ var (
 	CURRENCY_UPDATE_TIME time.Duration
 	ADS_UPDATE_TIME      time.Duration
 	JETTONS_UPDATE_TIME  time.Duration
+	PRICE_UPDATE_TIME    time.Duration
 
 	JETTONS map[string]types.Jetton
 	ADS     []types.Ad
@@ -80,6 +81,9 @@ func init() {
 
 	CURRENCY_UPDATE_TIME_SECS, _ := strconv.Atoi(os.Getenv("CURRENCY_UPDATE_TIME_SECS"))
 	CURRENCY_UPDATE_TIME = time.Duration(CURRENCY_UPDATE_TIME_SECS) * time.Second
+
+	PRICE_UPDATE_TIME_SECS, _ := strconv.Atoi(os.Getenv("PRICE_UPDATE_TIME_SECS"))
+	PRICE_UPDATE_TIME = time.Duration(PRICE_UPDATE_TIME_SECS) * time.Second
 
 	FetchAds()
 	FetchJettons()
