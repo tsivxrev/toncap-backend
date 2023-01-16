@@ -32,8 +32,8 @@ func Router() *gin.Engine {
 	router.GET("/token/generate", controllers.GenerateTokenController)
 
 	//router.GET("/prices", controllers.GetPrices)
-	router.GET("/prices/:contract", cache.CachePage(cacheStore, config.PRICE_UPDATE_TIME, controllers.GetPrice))
 	router.POST("/prices", controllers.AddPrice)
+	router.GET("/prices/:contract", cache.CachePage(cacheStore, config.PRICE_UPDATE_TIME, controllers.GetPrice))
 
 	router.GET("/jettons", controllers.GetJettons)
 	router.GET("/jettons/:id", controllers.GetJetton)
