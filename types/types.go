@@ -1,9 +1,5 @@
 package types
 
-import (
-	"time"
-)
-
 type HTTPError struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -29,12 +25,13 @@ type Currency struct {
 }
 
 type Price struct {
-	Id     int64      `json:"id"`
-	Ticker string     `json:"ticker"`
-	Market string     `json:"market"`
-	Price  float64    `json:"price"`
-	Volume float64    `json:"volume"`
-	Date   *time.Time `json:"date"`
+	Id       uint    `json:"id" gorm:"primaryKey,autoIncrement"`
+	Contract string  `json:"contract" binding:"required"`
+	Ticker   string  `json:"ticker" binding:"required"`
+	Market   string  `json:"market" binding:"required"`
+	Price    float64 `json:"price" binding:"required"`
+	Volume   float64 `json:"volume" binding:"required"`
+	Date     int64   `json:"date" gorm:"autoCreateTime"`
 }
 
 type JettonMarket struct {

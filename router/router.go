@@ -29,8 +29,8 @@ func Router() *gin.Engine {
 	router.GET("/token/validate/:token", controllers.ValidateTokenController)
 	router.GET("/token/generate", controllers.GenerateTokenController)
 
-	router.GET("/prices", controllers.GetPrices)
-	router.GET("/prices/:id", controllers.GetPrice)
+	//router.GET("/prices", controllers.GetPrices)
+	router.GET("/prices/:contract", controllers.GetPrice)
 	router.POST("/prices", controllers.AddPrice)
 
 	router.GET("/jettons", controllers.GetJettons)
