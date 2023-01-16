@@ -18,6 +18,7 @@ func Router() *gin.Engine {
 
 	cacheStore := persistence.NewInMemoryStore(time.Second)
 
+	router.Use(gin.Logger())
 	router.Use(gin.CustomRecovery(middlewares.ErrorHandler))
 
 	router.GET("/ads", controllers.GetAds)
