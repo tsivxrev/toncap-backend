@@ -9,13 +9,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func average(prices []types.Price) (price float64, volume float64) {
-	for _, _price := range prices {
-		price += _price.Price
-		volume += _price.Volume
+func max(prices []types.Price) float64 {
+	var m, t float64
+	for _, e := range prices {
+		if e.Price > t {
+			t = e.Price
+			m = t
+		}
+	}
+	return m
+}
+
+func avg(prices []types.Price) (price float64, volume float64) {
+	price = max(prices)
+	volume = 0
+
+	for _, price := range prices {
+		volume += price.Volume / float64(len(prices))
 	}
 
-	return price / float64(len(prices)), volume
+	return price, volume
 }
 
 func getPrice(contract string) gin.H {
@@ -23,8 +36,14 @@ func getPrice(contract string) gin.H {
 	result := database.DB.Limit(14880).Find(&prices, "contract = ?", contract)
 	logger.Log.Debugf("len: %v result: %v", len(prices), result)
 
-	if len(prices) < 14880 {
-		remaining := 14880 - len(prices)
+	var markets []string
+	result = database.DB.Raw("SELECT DISTINCT market FROM prices WHERE contract = ?", contract).Scan(&markets)
+	logger.Log.Debugf("len: %v result: %v", len(markets), result)
+
+	markets_count := len(markets)
+
+	if len(prices) < markets_count*14880 {
+		remaining := markets_count*14880 - len(prices)
 
 		for i := 0; i < remaining; i++ {
 			prices = append(prices, types.Price{
@@ -65,34 +84,34 @@ func getPrice(contract string) gin.H {
 			averages["actual"]["price"] += (price.Price / float64(len(prices)))
 			averages["actual"]["volume"] += price.Volume
 		}
-		if idx+1 <= 480 {
+		if idx+1 <= 480*markets_count {
 			dayPrices = append(dayPrices, price)
 		}
-		if idx+1 <= 3360 {
+		if idx+1 <= 3360*markets_count {
 			weekPrices = append(weekPrices, price)
 		}
-		if idx+1 <= 14880 {
+		if idx+1 <= 14880*markets_count {
 			monthPrices = append(monthPrices, price)
 		}
 	}
 
-	averages["day"]["price"], averages["day"]["volume"] = average(dayPrices)
-	averages["week"]["price"], averages["week"]["volume"] = average(weekPrices)
-	averages["month"]["price"], averages["month"]["volume"] = average(monthPrices)
+	averages["day"]["price"], averages["day"]["volume"] = avg(dayPrices)
+	averages["week"]["price"], averages["week"]["volume"] = avg(weekPrices)
+	averages["month"]["price"], averages["month"]["volume"] = avg(monthPrices)
 
 	graph := make(map[int]map[string]float64)
 
 	start := 0
-	end := 479
+	end := 479 * markets_count
 	for i := 0; i <= 30; i++ {
-		price, volume := average(monthPrices[start:end])
+		price, volume := avg(monthPrices[start:end])
 		graph[i] = map[string]float64{
 			"price":  price,
 			"volume": volume,
 		}
 
-		start += 480
-		end += 480
+		start += 480 * markets_count
+		end += 480 * markets_count
 	}
 
 	return gin.H{

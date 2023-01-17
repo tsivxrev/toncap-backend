@@ -42,13 +42,15 @@ func Router() *gin.Engine {
 
 	router.POST("/prices", controllers.AddPrice)
 	router.POST("/price", controllers.AddPrice)
-	router.GET("/prices/:contract",
+
+	router.GET("/prices/:contract", controllers.GetPrice)
+	/* 	router.GET("/prices/:contract",
 		cache.CachePage(
 			cacheStore,
 			config.PRICE_UPDATE_TIME,
 			controllers.GetPrice,
 		),
-	)
+	) */
 
 	router.NoMethod(func(c *gin.Context) {
 		controllers.NewError(c, 405, errors.New("method is not allowed"))
