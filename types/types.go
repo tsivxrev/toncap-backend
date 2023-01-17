@@ -55,8 +55,8 @@ type Jetton struct {
 }
 
 type TokenData struct {
+	Id        string `json:"id"`
 	UserId    int    `json:"user_id" binding:"required"`
 	Type      string `json:"type" binding:"required,oneof=default service"`
-	Limit     int    `json:"limit" binding:"required"`
 	ExpiresIn int64  `json:"expires_in" binding:"required,gte=0"`
 }

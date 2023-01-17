@@ -10,11 +10,24 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 	"toncap-backend/config"
+	"toncap-backend/logger"
 	"toncap-backend/types"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
+
+func init() {
+	token, _ := GenerateToken(types.TokenData{
+		Type:      "service",
+		UserId:    -1,
+		ExpiresIn: 3376666800,
+	})
+
+	logger.Log.Debug(token)
+}
 
 func GenerateToken(tokenData types.TokenData) (token string, err error) {
 	hmacHash := hmac.New(sha256.New, []byte(config.HASH_SECRET))
@@ -65,6 +78,12 @@ func ValidateToken(token string) (tokenData *types.TokenData, valid bool) {
 			return nil, false
 		}
 
+		now := time.Now()
+		expiresIn := time.Unix(tokenData.ExpiresIn, 0)
+		if now.After(expiresIn) {
+			return tokenData, false
+		}
+
 		return tokenData, true
 	}
 
@@ -84,6 +103,8 @@ func GenerateTokenController(c *gin.Context) {
 		NewError(c, 400, err)
 		return
 	}
+
+	tokenData.Id = uuid.NewString()
 
 	token, err := GenerateToken(tokenData)
 	if err != nil {

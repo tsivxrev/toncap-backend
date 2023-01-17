@@ -9,110 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-/* func calcPriceByDuration(prices []types.Price, markets_count int, duration int) map[string]float64 {
-	writes_count := duration * markets_count
-	i := 0
-
-	prices_resp := map[string]float64{
-		"price":  0,
-		"volume": 0,
-	}
-	for _, price := range prices {
-		if i == writes_count {
-			break
-		}
-
-		prices_resp["price"] += price.Price
-		prices_resp["volume"] += price.Volume
-		i++
-	}
-
-	return prices_resp
-}
-
-func getPrice_t(ticker string) (gin.H, error) {
-	jetton, ok := config.JETTONS[ticker]
-	if !ok {
-		return gin.H{}, errors.New("ticker not found")
-	}
-
-	markets_count := len(jetton.Markets)
-
-	var prices []types.Price
-	result := database.DB.Raw("SELECT * FROM prices WHERE ticker = ?", ticker).Limit(14400 * markets_count).Scan(&prices)
-	logger.Log.Debugf("result: %v", result)
-
-	market_data := map[string]interface{}{
-		"actual": calcPriceByDuration(prices, markets_count, 1),
-		"day":    calcPriceByDuration(prices, markets_count, 480),
-		"week":   calcPriceByDuration(prices, markets_count, 3360),
-		"month":  calcPriceByDuration(prices, markets_count, 14400),
-	}
-
-	graph := make(map[int]map[string]float64)
-
-	return gin.H{
-		"market_data": market_data,
-	}, nil
-}
-
-func getPrice(ticker string, markets_count int, writes int, offset_days int) map[string]float64 {
-	offset := (markets_count * 480) * offset_days
-
-	writes_get := writes * markets_count
-
-	var prices []types.Price
-	result := database.DB.Raw("SELECT * FROM prices WHERE ticker = ?", ticker).Limit(writes_get).Offset(offset).Scan(&prices)
-
-	logger.Log.Debugf("result: %v", result)
-
-	var price float64 = 0
-	var volume float64 = 0
-
-	for _, price_ := range prices {
-		price += price_.Price / float64(len(prices))
-		volume += price_.Volume
-	}
-
-	return map[string]float64{
-		"price":  price,
-		"volume": volume,
-	}
-}
-
-func GetPrices(c *gin.Context) {
-	tickerName := c.Query("ticker")
-
-	jetton, ok := config.JETTONS[tickerName]
-	if !ok {
-		NewError(c, 404, errors.New("ticker not found"))
-		return
-	}
-
-	markets := jetton.Markets
-	markets_count := len(markets)
-
-	market_data := map[string]interface{}{
-		"actual": getPrice(tickerName, markets_count, 1, 0),
-		"day":    getPrice(tickerName, markets_count, 480, 0),
-		"week":   getPrice(tickerName, markets_count, 3360, 0),
-		"month":  getPrice(tickerName, markets_count, 14400, 0),
-	}
-
-	market_prices := map[string]interface{}{"test": true}
-	graph := make(map[int]map[string]float64)
-
-	for i := 0; i <= 30; i++ {
-		graph[i] = getPrice(tickerName, markets_count, 480, i)
-	}
-
-	c.JSON(200, gin.H{
-		"market_data":   market_data,
-		"market_prices": market_prices,
-		"graph":         graph,
-	})
-} */
-
 func average(prices []types.Price) (price float64, volume float64) {
 	for _, _price := range prices {
 		price += _price.Price
@@ -160,9 +56,9 @@ func getPrice(contract string) gin.H {
 		},
 	}
 
-	dayPrices := []types.Price{}
-	weekPrices := []types.Price{}
-	monthPrices := []types.Price{}
+	dayPrices := []types.Price{}   // len: 480
+	weekPrices := []types.Price{}  // 3360
+	monthPrices := []types.Price{} // 14880
 
 	for idx, price := range prices {
 		if idx == 0 {
@@ -216,7 +112,13 @@ func GetPrice(c *gin.Context) {
 
 	c.JSON(200, getPrice(contract))
 }
+
 func AddPrice(c *gin.Context) {
+	if c.GetString("auth_token_type") != "service" {
+		NewError(c, 403, errors.New("access denied"))
+		return
+	}
+
 	var price types.Price
 	err := c.ShouldBindJSON(&price)
 	if err != nil {
@@ -233,5 +135,3 @@ func AddPrice(c *gin.Context) {
 
 	logger.Log.Debug(price)
 }
-func EditPrice(c *gin.Context)   {}
-func RemovePrice(c *gin.Context) {}
