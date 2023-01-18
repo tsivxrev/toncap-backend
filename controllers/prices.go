@@ -1,13 +1,36 @@
 package controllers
 
 import (
+	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"net/http"
 	"toncap-backend/database"
 	"toncap-backend/logger"
 	"toncap-backend/types"
 
 	"github.com/gin-gonic/gin"
 )
+
+func fetch_actual(contract string) (actual types.ActualResponse, err error) {
+	response, err := http.Get("http://127.0.0.1:3001/markets/" + contract)
+	if err != nil {
+		return types.ActualResponse{}, err
+	}
+
+	responseBodyRaw, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return types.ActualResponse{}, err
+	}
+	defer response.Body.Close()
+
+	err = json.Unmarshal(responseBodyRaw, &actual)
+	if err != nil {
+		return types.ActualResponse{}, err
+	}
+
+	return actual, nil
+}
 
 func max(prices []types.Price) float64 {
 	var m, t float64
@@ -31,7 +54,7 @@ func avg(prices []types.Price) (price float64, volume float64) {
 	return price, volume
 }
 
-func getPrice(contract string) gin.H {
+func getPrice(contract string) (priceResp map[string]interface{}, err error) {
 	var prices []types.Price
 	result := database.DB.Limit(14880).Find(&prices, "contract = ?", contract)
 	logger.Log.Debugf("len: %v result: %v", len(prices), result)
@@ -39,6 +62,10 @@ func getPrice(contract string) gin.H {
 	var markets []string
 	result = database.DB.Raw("SELECT DISTINCT market FROM prices WHERE contract = ?", contract).Scan(&markets)
 	logger.Log.Debugf("len: %v result: %v", len(markets), result)
+
+	if len(prices) == 0 {
+		return nil, errors.New("contract not found")
+	}
 
 	markets_count := len(markets)
 
@@ -75,15 +102,11 @@ func getPrice(contract string) gin.H {
 		},
 	}
 
-	dayPrices := []types.Price{}   // len: 480
-	weekPrices := []types.Price{}  // 3360
-	monthPrices := []types.Price{} // 14880
+	dayPrices := []types.Price{}
+	weekPrices := []types.Price{}
+	monthPrices := []types.Price{}
 
 	for idx, price := range prices {
-		if idx == 0 {
-			averages["actual"]["price"] += (price.Price / float64(len(prices)))
-			averages["actual"]["volume"] += price.Volume
-		}
 		if idx+1 <= 480*markets_count {
 			dayPrices = append(dayPrices, price)
 		}
@@ -93,6 +116,16 @@ func getPrice(contract string) gin.H {
 		if idx+1 <= 14880*markets_count {
 			monthPrices = append(monthPrices, price)
 		}
+	}
+
+	actual, err := fetch_actual(contract)
+	if err != nil {
+		return nil, err
+	}
+
+	averages["actual"] = map[string]float64{
+		"price":  actual.Actual.Price,
+		"volume": actual.Actual.Volume,
 	}
 
 	averages["day"]["price"], averages["day"]["volume"] = avg(dayPrices)
@@ -114,11 +147,12 @@ func getPrice(contract string) gin.H {
 		end += 480 * markets_count
 	}
 
-	return gin.H{
+	return map[string]interface{}{
 		"contract": contract,
 		"averages": averages,
 		"graph":    graph,
-	}
+		"markets":  actual.Markets,
+	}, nil
 }
 
 func GetPrice(c *gin.Context) {
@@ -129,7 +163,13 @@ func GetPrice(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, getPrice(contract))
+	price, err := getPrice(contract)
+	if err != nil {
+		NewError(c, 400, err)
+		return
+	}
+
+	c.JSON(200, price)
 }
 
 func AddPrice(c *gin.Context) {

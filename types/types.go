@@ -60,3 +60,21 @@ type TokenData struct {
 	Type      string `json:"type" binding:"required,oneof=default service"`
 	ExpiresIn int64  `json:"expires_in" binding:"required,gte=0"`
 }
+
+type ActualResponsePriceVolume struct {
+	Price  float64 `json:"price"`
+	Volume float64 `json:"volume"`
+}
+
+type ActualResponseMarket struct {
+	Contract string  `json:"contract"`
+	Market   string  `json:"market"`
+	Ticker   string  `json:"ticker"`
+	Price    float64 `json:"price"`
+	Volume   float64 `json:"volume"`
+}
+
+type ActualResponse struct {
+	Actual  ActualResponsePriceVolume `json:"actual"`
+	Markets []ActualResponseMarket    `json:"markets"`
+}
