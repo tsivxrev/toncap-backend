@@ -155,6 +155,30 @@ func getPrice(contract string) (priceResp map[string]interface{}, err error) {
 	}, nil
 }
 
+func GetPriceMinimal(c *gin.Context) {
+	contract := c.Param("contract")
+
+	if contract == "" {
+		NewError(c, 400, errors.New("contract not found"))
+		return
+	}
+
+	actual, err := fetch_actual(contract)
+	if err != nil {
+		NewError(c, 502, err)
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"contract": contract,
+		"actual": gin.H{
+			"price":  actual.Actual.Price,
+			"volume": actual.Actual.Volume,
+		},
+		"markets": actual.Markets,
+	})
+}
+
 func GetPrice(c *gin.Context) {
 	contract := c.Param("contract")
 
