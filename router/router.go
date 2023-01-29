@@ -43,6 +43,12 @@ func Router() *gin.Engine {
 	router.POST("/prices", controllers.AddPrice)
 	router.POST("/price", controllers.AddPrice)
 
+	router.GET("/prices/graph/:contract", cache.CachePage(
+		cacheStore,
+		config.PRICE_UPDATE_TIME,
+		controllers.GetGraph,
+	))
+
 	router.GET("/prices/min/:contract", cache.CachePage(
 		cacheStore,
 		config.PRICE_UPDATE_TIME,
