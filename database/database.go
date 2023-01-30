@@ -28,7 +28,7 @@ func Connect() error {
 		return err
 	}
 
-	err = db.AutoMigrate(&types.Ad{})
+	err = db.AutoMigrate(&types.Ad{}, &types.Price{})
 	if err != nil {
 		return err
 	}

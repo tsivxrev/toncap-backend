@@ -28,6 +28,11 @@ func AdsGetById(c *fiber.Ctx) error {
 }
 
 func AdsUpdate(c *fiber.Ctx) error {
+	// Все-таки стоит придумать более удобную проверку на тип токена
+	if c.Locals("auth.token_type") != "service" {
+		return Error(c, fiber.StatusForbidden, errors.New("access denied"))
+	}
+
 	id := c.Params("id")
 
 	var ad types.Ad
@@ -53,6 +58,10 @@ func AdsUpdate(c *fiber.Ctx) error {
 }
 
 func AdsCreate(c *fiber.Ctx) error {
+	if c.Locals("auth.token_type") != "service" {
+		return Error(c, fiber.StatusForbidden, errors.New("access denied"))
+	}
+
 	var ad types.Ad
 	err := c.BodyParser(&ad)
 	if err != nil {
@@ -71,6 +80,10 @@ func AdsCreate(c *fiber.Ctx) error {
 }
 
 func AdsDelete(c *fiber.Ctx) error {
+	if c.Locals("auth.token_type") != "service" {
+		return Error(c, fiber.StatusForbidden, errors.New("access denied"))
+	}
+
 	id := c.Params("id")
 
 	var ad types.Ad

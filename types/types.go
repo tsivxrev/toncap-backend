@@ -19,3 +19,42 @@ type Ad struct {
 	Text     string `json:"text"`                                                       // ad caption
 	Link     string `json:"link" gorm:"not null" validate:"required,url"`               // ad link
 }
+
+type Currency struct {
+	Byn float64 `json:"byn"`
+	Cny float64 `json:"cny"`
+	Eur float64 `json:"eur"`
+	Gbp float64 `json:"gbp"`
+	Kzt float64 `json:"kzt"`
+	Rub float64 `json:"rub"`
+	Uah float64 `json:"uah"`
+	Usd float64 `json:"usd"`
+}
+
+type Price struct {
+	Id       uint    `json:"id" gorm:"primaryKey,autoIncrement"`
+	Contract string  `json:"contract" validate:"required"`
+	Ticker   string  `json:"ticker" validate:"required"`
+	Market   string  `json:"market" validate:"required"`
+	Price    float64 `json:"price" validate:"required"`
+	Volume   float64 `json:"volume" validate:"required"`
+	Date     int64   `json:"date" gorm:"autoCreateTime"`
+}
+
+type ActualResponsePriceVolume struct {
+	Price  float64 `json:"price"`
+	Volume float64 `json:"volume"`
+}
+
+type ActualResponseMarket struct {
+	Contract string  `json:"contract"`
+	Market   string  `json:"market"`
+	Ticker   string  `json:"ticker"`
+	Price    float64 `json:"price"`
+	Volume   float64 `json:"volume"`
+}
+
+type ActualResponse struct {
+	Actual  ActualResponsePriceVolume `json:"actual"`
+	Markets []ActualResponseMarket    `json:"markets"`
+}
