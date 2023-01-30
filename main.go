@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"toncap-backend/controller"
+	"toncap-backend/database"
 	"toncap-backend/router"
 
 	"github.com/gofiber/fiber/v2"
@@ -31,6 +32,11 @@ func main() {
 		CaseSensitive: true,
 		Prefork:       true,
 	})
+
+	err := database.Connect()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	app.Use(cors.New())
 	app.Use(logger.New())
