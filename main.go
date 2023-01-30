@@ -1,17 +1,43 @@
 package main
 
 import (
-	"toncap-backend/config"
-	"toncap-backend/logger"
+	"log"
+	"os"
+	"toncap-backend/controller"
 	"toncap-backend/router"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
+
+	//"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/joho/godotenv"
 )
 
-func main() {
-	app := router.Router()
-
-	logger.Log.Info("[http] started on: ", config.SERVER_ADDRESS)
-	err := app.Run(config.SERVER_ADDRESS)
+func init() {
+	err := godotenv.Load()
 	if err != nil {
-		logger.Log.Fatal("[http] error: ", err.Error())
+		log.Fatal(err)
 	}
+}
+
+func main() {
+	app := fiber.New(fiber.Config{
+		AppName: "Toncap v3",
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			return controller.Error(c, fiber.StatusInternalServerError, err)
+		},
+		CaseSensitive: true,
+		Prefork:       true,
+	})
+
+	app.Use(cors.New())
+	app.Use(logger.New())
+	app.Use(recover.New())
+	//app.Use(limiter.New())
+
+	router.Setup(app)
+
+	log.Fatal(app.Listen(os.Getenv("ADDRESS")))
 }
