@@ -16,7 +16,7 @@ type Ad struct {
 	Id       uint64 `json:"id" gorm:"primaryKey,index,autoIncrement"`                   // ad id
 	Type     string `json:"type" gorm:"not null" validate:"required,oneof=banner text"` // banner or text
 	ImageURL string `json:"image_url" gorm:"not null" validate:"required,url"`          // banner image
-	Text     string `json:"text"`                                                       // ad caption
+	Text     string `json:"text" gorm:"not null" validate:"required"`                   // ad caption
 	Link     string `json:"link" gorm:"not null" validate:"required,url"`               // ad link
 }
 
@@ -38,7 +38,9 @@ type Price struct {
 	Market   string  `json:"market" validate:"required"`
 	Price    float64 `json:"price" validate:"required"`
 	Volume   float64 `json:"volume" validate:"required"`
-	Date     int64   `json:"date" gorm:"autoCreateTime"`
+	Day      int     `json:"day" validate:"required"`
+	Month    int     `json:"month" validate:"required"`
+	Year     int     `json:"year" validate:"required"`
 }
 
 type ActualResponsePriceVolume struct {
@@ -57,4 +59,10 @@ type ActualResponseMarket struct {
 type ActualResponse struct {
 	Actual  ActualResponsePriceVolume `json:"actual"`
 	Markets []ActualResponseMarket    `json:"markets"`
+}
+
+type Graph struct {
+	Date   int64   `json:"date"`
+	Price  float64 `json:"price"`
+	Volume float64 `json:"volume"`
 }

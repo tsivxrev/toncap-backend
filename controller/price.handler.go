@@ -2,7 +2,7 @@ package controller
 
 import (
 	"errors"
-	"log"
+	"time"
 	"toncap-backend/database"
 	"toncap-backend/types"
 	"toncap-backend/utils"
@@ -10,128 +10,102 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func max(prices []types.Price) float64 {
-	var m, t float64
-	for _, e := range prices {
-		if e.Price > t {
-			t = e.Price
-			m = t
-		}
+func get_extended_graph(contract string) (graph map[string][]types.Graph) {
+	var markets []string
+	database.DB.Raw("SELECT DISTINCT market FROM prices WHERE contract = ?", contract).Scan(&markets)
+
+	now := time.Now()
+
+	graph = make(map[string][]types.Graph)
+	for _, market := range markets {
+		graph[market] = get_graph(contract, market, now)
 	}
-	return m
+
+	graph["average"] = get_graph(contract, "", now)
+
+	return graph
 }
 
-func avg(prices []types.Price) (price float64, volume float64) {
-	price = max(prices)
-	volume = 0
+func get_graph(contract string, market string, date time.Time) (graph []types.Graph) {
+	var prices []types.Price
+
+	query := database.DB.Where("contract = ?", contract).Where("month = ?", int(date.Month())).Where("year = ?", date.Year())
+	if market != "" {
+		query = query.Where("market = ?", market)
+	}
+
+	query.Find(&prices)
 
 	for _, price := range prices {
-		volume += price.Volume / float64(len(prices))
+		price_date := time.Date(price.Year, time.Month(price.Month), price.Day, 23, 59, 0, 0, time.UTC)
+		graph = append(graph, types.Graph{
+			Date:   price_date.Unix(),
+			Price:  price.Price,
+			Volume: price.Volume,
+		})
 	}
 
-	return price, volume
-}
-
-func getPrice(contract string) (fiber.Map, error) {
-	var prices []types.Price
-	result := database.DB.Limit(14880).Find(&prices, "contract = ?", contract)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("contract not found")
+	if market != "" {
+		return graph
 	}
 
 	var markets []string
-	result = database.DB.Raw("SELECT DISTINCT market FROM prices WHERE contract = ?", contract).Scan(&markets)
-	if result.RowsAffected == 0 {
-		return nil, errors.New("markets not found")
-	}
+	database.DB.Raw("SELECT DISTINCT market FROM prices WHERE contract = ?", contract).Scan(&markets)
 
-	markets_count := len(markets)
-
-	if len(prices) < markets_count*14880 {
-		remaining := markets_count*14880 - len(prices)
-		for i := 0; i < remaining; i++ {
-			prices = append(prices, types.Price{
-				Contract: prices[0].Contract,
-				Ticker:   prices[0].Ticker,
-				Market:   prices[0].Market,
-				Volume:   0,
-				Price:    0,
-			})
+	var merged_graph []types.Graph
+	temp_graph := make(map[int64]types.Graph)
+	for _, graph_item := range graph {
+		if val, ok := temp_graph[graph_item.Date]; ok {
+			val.Price += graph_item.Price
+			val.Volume += graph_item.Volume
+			temp_graph[graph_item.Date] = val
+		} else {
+			temp_graph[graph_item.Date] = graph_item
 		}
 	}
 
-	graph := make(map[int]map[string]float64)
-
-	start := 0
-	end := 479 * markets_count
-	for i := 0; i <= 30; i++ {
-		price, volume := avg(prices[start:end])
-		graph[i] = map[string]float64{
-			"price":  price,
-			"volume": volume,
-		}
-
-		start += 480 * markets_count
-		end += 480 * markets_count
+	for k, v := range temp_graph {
+		merged_graph = append(merged_graph, types.Graph{
+			Date:   k,
+			Price:  v.Price / float64(len(markets)),
+			Volume: v.Volume / float64(len(markets)),
+		})
 	}
 
-	actual, err := utils.GetActual(contract)
-	if err != nil {
-		return nil, nil
-	}
-
-	return fiber.Map{
-		"averages": fiber.Map{
-			"actual": fiber.Map{
-				"price":  actual.Actual.Price,
-				"volume": actual.Actual.Volume,
-			},
-		},
-		"contract": contract,
-		"graph":    graph,
-		"markets":  markets,
-	}, nil
+	return merged_graph
 }
 
 func GetPrice(c *fiber.Ctx) error {
 	contract := c.Params("contract")
-	prices, err := getPrice(contract)
-	if err != nil {
-		return Error(c, fiber.StatusInternalServerError, err)
-	}
 
-	return c.Status(fiber.StatusOK).JSON(prices)
-}
-
-func GetGraph(c *fiber.Ctx) error {
-	contract := c.Params("contract")
-	prices, err := getPrice(contract)
-	if err != nil {
-		return Error(c, fiber.StatusInternalServerError, err)
-	}
-
-	return c.Status(fiber.StatusOK).JSON(prices["graph"])
-}
-
-func GetMinimalPrice(c *fiber.Ctx) error {
-	contract := c.Params("contract")
-	if contract == "" {
-		return Error(c, fiber.StatusNotFound, errors.New("contract not found"))
-	}
-
+	graph := get_graph(contract, "", time.Now())
 	actual, err := utils.GetActual(contract)
 	if err != nil {
-		return Error(c, fiber.StatusInternalServerError, err)
+		return Error(c, 500, err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"contract": contract,
-		"actual": fiber.Map{
-			"price":  actual.Actual.Price,
-			"volume": actual.Actual.Volume,
-		},
-		"markets": actual.Markets,
+		"actual":   actual.Actual,
+		"markets":  actual.Markets,
+		"graph":    graph,
 	})
+}
+
+func GetGraph(c *fiber.Ctx) error {
+	contract := c.Params("contract")
+	graph := get_extended_graph(contract)
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"contract": contract,
+		"graph":    graph,
+	})
+}
+
+func GetMinimalPrice(c *fiber.Ctx) error {
+	contract := c.Params("contract")
+
+	return c.Status(fiber.StatusOK).JSON(contract)
 }
 
 func AddPrice(c *fiber.Ctx) error {
@@ -139,21 +113,30 @@ func AddPrice(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusForbidden, errors.New("access denied"))
 	}
 
+	var received_price types.Price
+	err := c.BodyParser(&received_price)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, errors.New("invalid request body"))
+	}
+
+	err = utils.Validate.Struct(received_price)
+	if err != nil {
+		return Error(c, fiber.StatusBadRequest, err)
+	}
+
 	var price types.Price
-	err := c.BodyParser(&price)
+	result := database.DB.Where("contract = ?", received_price.Contract).Where("market = ?", received_price.Market).Where("day = ?", received_price.Day).Where("month = ?", received_price.Month).Where("year = ?", received_price.Year).First(&price)
 	if err != nil {
-		return Error(c, fiber.StatusBadRequest, err)
+		return Error(c, fiber.StatusBadRequest, result.Error)
 	}
 
-	err = utils.Validate.Struct(price)
-	if err != nil {
-		return Error(c, fiber.StatusBadRequest, err)
-	}
-
-	result := database.DB.Create(&price)
-	if result.Error != nil || result.RowsAffected == 0 {
-		log.Printf("[AddPrice] %v result: %v\n", price, result)
-		return Error(c, fiber.StatusInternalServerError, result.Error)
+	if result.RowsAffected == 0 {
+		price = received_price
+		database.DB.Create(&price)
+	} else {
+		price.Price = received_price.Price
+		price.Volume = received_price.Volume
+		database.DB.Save(&price)
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(price)
