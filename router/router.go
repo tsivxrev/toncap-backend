@@ -9,6 +9,7 @@ import (
 
 func Setup(app *fiber.App) {
 	app.Get("/currency", controller.Currency)
+	app.Get("/records", controller.AuthMiddleware, controller.GetRecords)
 
 	app.Get("/ads", controller.AdsGetAll)
 	app.Get("/ads/:id", controller.AdsGetById)
@@ -18,9 +19,12 @@ func Setup(app *fiber.App) {
 	app.Delete("/ads/:id", controller.AuthMiddleware, controller.AdsDelete)
 
 	app.Post("/prices", controller.AuthMiddleware, controller.AddPrice)
-	app.Get("/prices/:contract", controller.AuthMiddleware, controller.GetPrice)
-	app.Get("/prices/:contract/min", controller.AuthMiddleware, controller.GetMinimalPrice)
-	app.Get("/prices/:contract/graph", controller.AuthMiddleware, controller.GetGraph)
+
+	app.Get("/contracts", controller.AuthMiddleware, controller.Contracts)
+	app.Get("/contract/:contract", controller.AuthMiddleware, controller.GetContract)
+	app.Get("/contract/:contract/meta", controller.AuthMiddleware, controller.GetJettonMeta)
+	app.Get("/contract/:contract/graph", controller.AuthMiddleware, controller.GetGraph)
+	app.Get("/contract/:contract/price", controller.AuthMiddleware, controller.GetPrice)
 
 	app.Get("/token/generate", controller.AuthMiddleware, controller.GenerateToken)
 	app.Get("/token/:token/validate", controller.AuthMiddleware, controller.ValidateToken)

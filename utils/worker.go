@@ -8,9 +8,29 @@ import (
 	"net/http"
 	"os"
 	"toncap-backend/types"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 var worker_host = os.Getenv("WORKER_HOST")
+
+func GetJettons() (body fiber.Map, err error) {
+	response, err := http.Get(fmt.Sprintf("http://%s/listed", worker_host))
+	if err != nil {
+		return nil, err
+	}
+
+	responseBodyRaw, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	var jettons fiber.Map
+	err = json.Unmarshal(responseBodyRaw, &jettons)
+
+	return jettons, nil
+}
 
 func GetActual(contract string) (actual types.ActualResponse, err error) {
 	response, err := http.Get(fmt.Sprintf("http://%s/markets/%s", worker_host, contract))
