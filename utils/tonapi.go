@@ -55,6 +55,7 @@ func JettonMeta(contract string) (response fiber.Map, err error) {
 		return fiber.Map{
 			"total_supply": float64(total_supply) / math.Pow(10, decimals),
 			"decimals":     decimals,
+			"symbol":       content.GetAttribute("symbol"),
 			"name":         content.Name,
 			"description":  content.Description,
 			"image":        content.Image,
