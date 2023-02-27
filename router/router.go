@@ -20,11 +20,11 @@ func Setup(app *fiber.App) {
 
 	app.Post("/prices", controller.AuthMiddleware, controller.AddPrice)
 
-	app.Get("/contracts", controller.AuthMiddleware, controller.Contracts)
-	app.Get("/contract/:contract", controller.AuthMiddleware, controller.GetContract)
-	app.Get("/contract/:contract/meta", controller.AuthMiddleware, controller.GetJettonMeta)
-	app.Get("/contract/:contract/graph", controller.AuthMiddleware, controller.GetGraph)
-	app.Get("/contract/:contract/price", controller.AuthMiddleware, controller.GetPrice)
+	app.Get("/contracts", controller.Contracts)
+	app.Get("/contract/:contract", controller.GetContract)
+	app.Get("/contract/:contract/meta", controller.GetJettonMeta)
+	app.Get("/contract/:contract/graph", controller.GetGraph)
+	app.Get("/contract/:contract/price", controller.GetPrice)
 
 	app.Get("/token/generate", controller.AuthMiddleware, controller.GenerateToken)
 	app.Get("/token/:token/validate", controller.AuthMiddleware, controller.ValidateToken)
