@@ -45,6 +45,8 @@ func JettonMeta(contract string) (response fiber.Map, err error) {
 		return nil, err
 	}
 
+	socials, _ := GetSocials(contract)
+
 	switch data.Content.(type) {
 	case *nft.ContentOnchain:
 		total_supply := data.TotalSupply.Int64()
@@ -56,6 +58,7 @@ func JettonMeta(contract string) (response fiber.Map, err error) {
 			"total_supply": float64(total_supply) / math.Pow(10, decimals),
 			"decimals":     decimals,
 			"symbol":       content.GetAttribute("symbol"),
+			"socials":      socials,
 			"name":         content.Name,
 			"description":  content.Description,
 			"image":        content.Image,
@@ -88,6 +91,7 @@ func JettonMeta(contract string) (response fiber.Map, err error) {
 			decimals = 9
 		}
 
+		ipfs_content["socials"] = socials
 		ipfs_content["total_supply"] = float64(total_supply) / math.Pow(10, float64(decimals))
 
 		return ipfs_content, nil

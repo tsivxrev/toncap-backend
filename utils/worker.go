@@ -14,6 +14,26 @@ import (
 
 var worker_host = os.Getenv("WORKER_HOST")
 
+func GetSocials(contract string) (socials fiber.Map, err error) {
+	response, err := http.Get(fmt.Sprintf("http://%s/social/%s", worker_host, contract))
+	if err != nil {
+		return nil, err
+	}
+
+	responseBodyRaw, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	err = json.Unmarshal(responseBodyRaw, &socials)
+	if err != nil {
+		return nil, err
+	}
+
+	return socials, nil
+}
+
 func GetJettons() (body fiber.Map, err error) {
 	response, err := http.Get(fmt.Sprintf("http://%s/listed", worker_host))
 	if err != nil {
@@ -28,6 +48,9 @@ func GetJettons() (body fiber.Map, err error) {
 
 	var jettons fiber.Map
 	err = json.Unmarshal(responseBodyRaw, &jettons)
+	if err != nil {
+		return nil, err
+	}
 
 	return jettons, nil
 }
