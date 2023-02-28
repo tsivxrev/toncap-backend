@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"log"
 	"time"
 	"toncap-backend/database"
 	"toncap-backend/types"
@@ -9,6 +10,33 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 )
+
+func ListedContracts(c *fiber.Ctx) error {
+	jettons, err := utils.GetJettons()
+	if err != nil {
+		return Error(c, 500, err)
+	}
+
+	log.Printf("jettons %v\n", jettons["data"])
+
+	var parsed_contracts []fiber.Map
+	contracts, ok := jettons["data"].([]interface{})
+	if !ok {
+		return Error(c, 500, errors.New("something went wrong"))
+	}
+
+	for _, contract := range contracts {
+		contract := contract.(string)
+		contract_data, err := get_contract(contract)
+		if err != nil {
+			continue
+		}
+
+		parsed_contracts = append(parsed_contracts, contract_data)
+	}
+
+	return c.Status(200).JSON(parsed_contracts)
+}
 
 func Contracts(c *fiber.Ctx) error {
 	jettons, err := utils.GetJettons()
@@ -105,25 +133,39 @@ func GetGraph(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(graph)
 }
 
-func GetContract(c *fiber.Ctx) error {
-	contract := c.Params("contract")
+func get_contract(contract string) (resp fiber.Map, err error) {
+	if contract == "" {
+		return nil, errors.New("contract not provided")
+	}
+
 	graph := get_extended_graph(contract)
 	actual, err := utils.GetActual(contract)
 	if err != nil {
-		return Error(c, 500, err)
+		return nil, err
 	}
 	meta, err := utils.JettonMeta(contract)
 	if err != nil {
-		return Error(c, 500, err)
+		return nil, err
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+	return fiber.Map{
 		"contract": contract,
 		"graph":    graph,
 		"meta":     meta,
 		"actual":   actual.Actual,
 		"markets":  actual.Markets,
-	})
+	}, nil
+}
+
+func GetContract(c *fiber.Ctx) error {
+	contract := c.Params("contract")
+
+	contract_data, err := get_contract(contract)
+	if err != nil {
+		return Error(c, 500, err)
+	}
+
+	return c.Status(200).JSON(contract_data)
 }
 
 func GetJettonMeta(c *fiber.Ctx) error {

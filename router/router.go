@@ -21,6 +21,7 @@ func Setup(app *fiber.App) {
 	app.Post("/prices", controller.AuthMiddleware, controller.AddPrice)
 
 	app.Get("/contracts", controller.Contracts)
+	app.Get("/contracts/listed", controller.ListedContracts)
 	app.Get("/contract/:contract", controller.GetContract)
 	app.Get("/contract/:contract/meta", controller.GetJettonMeta)
 	app.Get("/contract/:contract/graph", controller.GetGraph)
