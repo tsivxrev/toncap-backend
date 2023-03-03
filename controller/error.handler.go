@@ -1,4 +1,4 @@
-package controller
+package controller //stable
 
 import (
 	"toncap-backend/types"
@@ -8,7 +8,7 @@ import (
 )
 
 func Error(c *fiber.Ctx, statusCode int, err error) error {
-	return c.Status(statusCode).JSON(types.HTTPError{
+	return c.Status(statusCode).JSON(types.ErrorResponse{
 		Code:    statusCode,
 		Message: utils.Capitalize(err.Error()),
 	})

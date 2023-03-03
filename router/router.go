@@ -8,27 +8,26 @@ import (
 )
 
 func Setup(app *fiber.App) {
-	app.Get("/currency", controller.Currency)
+	app.Get("/currency", controller.GetCurrency)
+
 	app.Get("/records", controller.AuthMiddleware, controller.GetRecords)
+	app.Post("/records", controller.AuthMiddleware, controller.AuthServiceMethod, controller.CreateRecord)
 
-	app.Get("/ads", controller.AdsGetAll)
-	app.Get("/ads/:id", controller.AdsGetById)
+	app.Get("/ads", controller.GetAds)
+	app.Get("/ads/:id", controller.GetAdById)
+	app.Post("/ads", controller.AuthMiddleware, controller.AuthServiceMethod, controller.CreateAd)
+	app.Put("/ads/:id", controller.AuthMiddleware, controller.AuthServiceMethod, controller.UpdateAd)
+	app.Delete("/ads/:id", controller.AuthMiddleware, controller.AuthServiceMethod, controller.DeleteAd)
 
-	app.Post("/ads", controller.AuthMiddleware, controller.AdsCreate)
-	app.Put("/ads/:id", controller.AuthMiddleware, controller.AdsUpdate)
-	app.Delete("/ads/:id", controller.AuthMiddleware, controller.AdsDelete)
-
-	app.Post("/prices", controller.AuthMiddleware, controller.AddPrice)
-
-	app.Get("/contracts", controller.Contracts)
-	app.Get("/contracts/listed", controller.ListedContracts)
+	app.Get("/contracts", controller.GetContracts)
+	app.Get("/contracts/listed", controller.GetListedContracts)
 	app.Get("/contract/:contract", controller.GetContract)
-	app.Get("/contract/:contract/meta", controller.GetJettonMeta)
-	app.Get("/contract/:contract/graph", controller.GetGraph)
-	app.Get("/contract/:contract/price", controller.GetPrice)
+	app.Get("/contract/:contract/meta", controller.GetContractMeta)
+	app.Get("/contract/:contract/graph", controller.GetContractGraph)
+	app.Get("/contract/:contract/price", controller.GetContractPrice)
 
-	app.Get("/token/generate", controller.AuthMiddleware, controller.GenerateToken)
-	app.Get("/token/:token/validate", controller.AuthMiddleware, controller.ValidateToken)
+	app.Get("/token/generate", controller.AuthMiddleware, controller.AuthServiceMethod, controller.GenerateToken)
+	app.Get("/token/:token/validate", controller.AuthMiddleware, controller.AuthServiceMethod, controller.ValidateToken)
 
 	app.Use(func(c *fiber.Ctx) error {
 		return controller.Error(c, fiber.StatusNotFound, errors.New("not found"))

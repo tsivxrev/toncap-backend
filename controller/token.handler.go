@@ -20,9 +20,9 @@ func GenerateToken(c *fiber.Ctx) error {
 		return Error(c, fiber.StatusBadRequest, err)
 	}
 
-	err = utils.Validate.Struct(tokenData)
-	if err != nil {
-		return Error(c, fiber.StatusBadRequest, err)
+	validateErrors := utils.ValidateStruct(tokenData)
+	if validateErrors != nil {
+		return Error(c, fiber.StatusBadRequest, errors.New("invalid token data"))
 	}
 
 	tokenData.Id = uuid.NewString()

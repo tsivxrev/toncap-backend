@@ -1,4 +1,4 @@
-package controller
+package controller //stable
 
 import (
 	"errors"
@@ -26,6 +26,22 @@ func AuthMiddleware(c *fiber.Ctx) error {
 
 	c.Set("x-user-id", strconv.Itoa(tokenData.UserId))
 	c.Set("x-token-id", tokenData.Id)
+
+	return c.Next()
+}
+
+func AuthUserMethod(c *fiber.Ctx) error {
+	if c.Locals("auth.token_type") != "user" {
+		return Error(c, fiber.StatusForbidden, errors.New("access denied"))
+	}
+
+	return c.Next()
+}
+
+func AuthServiceMethod(c *fiber.Ctx) error {
+	if c.Locals("auth.token_type") != "service" {
+		return Error(c, fiber.StatusForbidden, errors.New("access denied"))
+	}
 
 	return c.Next()
 }

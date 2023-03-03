@@ -1,6 +1,8 @@
 package utils
 
-import "unicode"
+import (
+	"unicode"
+)
 
 func Capitalize(s string) string {
 	r := []rune(s)

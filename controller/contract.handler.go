@@ -11,174 +11,145 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func ListedContracts(c *fiber.Ctx) error {
-	jettons, err := utils.GetJettons()
-	if err != nil {
-		return Error(c, 500, err)
-	}
-
-	log.Printf("jettons %v\n", jettons["data"])
-
-	var parsed_contracts []fiber.Map
-	contracts, ok := jettons["data"].([]interface{})
-	if !ok {
-		return Error(c, 500, errors.New("something went wrong"))
-	}
-
-	for _, contract := range contracts {
-		contract := contract.(string)
-		contract_data, err := get_contract(contract)
-		if err != nil {
-			continue
-		}
-
-		parsed_contracts = append(parsed_contracts, contract_data)
-	}
-
-	return c.Status(200).JSON(parsed_contracts)
-}
-
-func Contracts(c *fiber.Ctx) error {
-	jettons, err := utils.GetJettons()
-	if err != nil {
-		return Error(c, 500, err)
-	}
-
-	return c.Status(200).JSON(jettons)
-}
-
-func get_extended_graph(contract string) (graph map[string][]types.Graph) {
-	var markets []string
-	database.DB.Raw("SELECT DISTINCT market FROM prices WHERE contract = ?", contract).Scan(&markets)
-
+func getContract(contract string) (contractInfo types.ContractResponse, err error) {
 	now := time.Now()
+	from := now.AddDate(0, -1, 0).Unix()
+	to := now.Unix()
 
-	graph = make(map[string][]types.Graph)
-	for _, market := range markets {
-		graph[market] = get_graph(contract, market, now)
+	graph, err := calculateGraph(contract, "", from, to)
+	if err != nil {
+		log.Println(err)
 	}
 
-	graph["average"] = get_graph(contract, "", now)
+	actual, err := utils.GetActual(contract)
+	if err != nil {
+		return types.ContractResponse{}, err
+	}
 
-	return graph
+	meta, err := utils.GetContractMeta(contract)
+	if err != nil {
+		return types.ContractResponse{}, err
+	}
+
+	return types.ContractResponse{
+		Contract: contract,
+		Actual:   actual.Price,
+		Markets:  actual.Markets,
+		Meta:     meta,
+		Graph:    graph,
+	}, nil
 }
 
-func get_graph(contract string, market string, date time.Time) (graph []types.Graph) {
-	var prices []types.Price
+func calculateGraph(contract string, market string, from int64, to int64) (graph []types.ContractGraph, err error) {
+	var graphResult []types.ContractGraph
 
-	query := database.DB.Where("contract = ?", contract).Where("month = ?", int(date.Month())).Where("year = ?", date.Year())
+	query := database.DB.Model(&types.Price{})
+	query = query.Select("date, AVG(price) AS price, SUM(volume) AS volume")
+	query = query.Where("contract = ?", contract)
 	if market != "" {
 		query = query.Where("market = ?", market)
 	}
-
-	query.Find(&prices)
-
-	for _, price := range prices {
-		price_date := time.Date(price.Year, time.Month(price.Month), price.Day, 23, 59, 0, 0, time.UTC)
-		graph = append(graph, types.Graph{
-			Date:   price_date.Unix(),
-			Price:  price.Price,
-			Volume: price.Volume,
-		})
+	if from != 0 && to != 0 {
+		query = query.Where("date BETWEEN ? AND ?", from, to)
+	}
+	query = query.Group("DATE(date, 'unixepoch')")
+	query = query.Find(&graphResult)
+	if query.Error != nil {
+		return []types.ContractGraph{}, query.Error
 	}
 
-	if market != "" {
-		return graph
+	return graphResult, nil
+}
+
+func GetListedContracts(c *fiber.Ctx) error {
+	listedContracts, err := utils.GetListedContracts()
+	if err != nil {
+		return Error(c, fiber.StatusInternalServerError, err)
 	}
 
-	var markets []string
-	database.DB.Raw("SELECT DISTINCT market FROM prices WHERE contract = ?", contract).Scan(&markets)
-
-	var merged_graph []types.Graph
-	temp_graph := make(map[int64]types.Graph)
-	for _, graph_item := range graph {
-		if val, ok := temp_graph[graph_item.Date]; ok {
-			val.Price += graph_item.Price
-			val.Volume += graph_item.Volume
-			temp_graph[graph_item.Date] = val
-		} else {
-			temp_graph[graph_item.Date] = graph_item
+	var contractsInfo []types.ContractResponse
+	for _, contract := range listedContracts {
+		contractInfo, err := getContract(contract)
+		if err != nil {
+			log.Println(err)
+			continue
 		}
+
+		contractsInfo = append(contractsInfo, contractInfo)
 	}
 
-	for k, v := range temp_graph {
-		merged_graph = append(merged_graph, types.Graph{
-			Date:   k,
-			Price:  v.Price / float64(len(markets)),
-			Volume: v.Volume / float64(len(markets)),
-		})
-	}
-
-	return merged_graph
+	return c.Status(fiber.StatusOK).JSON(contractsInfo)
 }
 
-func GetPrice(c *fiber.Ctx) error {
+func GetContractPrice(c *fiber.Ctx) error {
 	contract := c.Params("contract")
 
-	actual, err := utils.GetActual(contract)
-	if err != nil {
-		return Error(c, 500, err)
-	}
-
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"actual":  actual.Actual,
-		"markets": actual.Markets,
-	})
-}
-
-func GetGraph(c *fiber.Ctx) error {
-	contract := c.Params("contract")
-	graph := get_extended_graph(contract)
-
-	return c.Status(fiber.StatusOK).JSON(graph)
-}
-
-func get_contract(contract string) (resp fiber.Map, err error) {
 	if contract == "" {
-		return nil, errors.New("contract not provided")
+		return Error(c, fiber.StatusBadRequest, errors.New("contract not provided"))
 	}
 
-	graph := get_extended_graph(contract)
 	actual, err := utils.GetActual(contract)
 	if err != nil {
-		return nil, err
-	}
-	meta, err := utils.JettonMeta(contract)
-	if err != nil {
-		return nil, err
+		return Error(c, fiber.StatusInternalServerError, err)
 	}
 
-	return fiber.Map{
-		"contract": contract,
-		"graph":    graph,
-		"meta":     meta,
-		"actual":   actual.Actual,
-		"markets":  actual.Markets,
-	}, nil
+	return c.Status(fiber.StatusOK).JSON(actual)
+}
+
+func GetContractMeta(c *fiber.Ctx) error {
+	contract := c.Params("contract")
+
+	if contract == "" {
+		return Error(c, fiber.StatusBadRequest, errors.New("contract not provided"))
+	}
+
+	meta, err := utils.GetContractMeta(contract)
+	if err != nil {
+		return Error(c, fiber.StatusInternalServerError, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(meta)
+}
+
+func GetContractGraph(c *fiber.Ctx) error {
+	contract := c.Params("contract")
+
+	if contract == "" {
+		return Error(c, fiber.StatusBadRequest, errors.New("contract not provided"))
+	}
+
+	now := time.Now()
+	from := now.AddDate(0, -1, 0).Unix()
+	to := now.Unix()
+
+	meta, err := calculateGraph(contract, "", from, to)
+	if err != nil {
+		return Error(c, fiber.StatusInternalServerError, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(meta)
+}
+
+func GetContracts(c *fiber.Ctx) error {
+	listedContracts, err := utils.GetListedContracts()
+	if err != nil {
+		return Error(c, fiber.StatusInternalServerError, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(listedContracts)
 }
 
 func GetContract(c *fiber.Ctx) error {
 	contract := c.Params("contract")
 
-	contract_data, err := get_contract(contract)
-	if err != nil {
-		return Error(c, 500, err)
-	}
-
-	return c.Status(200).JSON(contract_data)
-}
-
-func GetJettonMeta(c *fiber.Ctx) error {
-	contract := c.Params("contract")
-
 	if contract == "" {
-		Error(c, 400, errors.New("contract not provided"))
+		return Error(c, fiber.StatusBadRequest, errors.New("contract not provided"))
 	}
 
-	meta, err := utils.JettonMeta(contract)
+	contractInfo, err := getContract(contract)
 	if err != nil {
-		Error(c, 500, err)
+		return Error(c, fiber.StatusInternalServerError, err)
 	}
 
-	return c.Status(200).JSON(meta)
+	return c.Status(fiber.StatusOK).JSON(contractInfo)
 }

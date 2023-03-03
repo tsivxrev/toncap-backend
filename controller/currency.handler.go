@@ -1,4 +1,4 @@
-package controller
+package controller //stable
 
 import (
 	"toncap-backend/utils"
@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Currency(c *fiber.Ctx) error {
+func GetCurrency(c *fiber.Ctx) error {
 	currency, err := utils.GetCurrency()
 	if err != nil {
 		return Error(c, fiber.StatusInternalServerError, err)
