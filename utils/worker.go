@@ -68,7 +68,7 @@ func GetContractMeta(contract string) (contractMeta types.ContractMeta, err erro
 	case *nft.ContentOffchain:
 		total_supply := jetton_data.TotalSupply.Uint64()
 		content := jetton_data.Content.(*nft.ContentOffchain)
-		content_url := strings.Replace(content.URI, "ipfs://", "https://ipfs.io/ipfs/", -1)
+		content_url := strings.Replace(content.URI, "ipfs://", fmt.Sprintf("http://%s/ipfs/", os.Getenv("IPFS_HOST")), -1)
 
 		res, err := http.Get(content_url)
 		if err != nil {
