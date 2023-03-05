@@ -22,5 +22,5 @@ type ContractResponse struct {
 	Graph    []ContractGraph `json:"graph"`
 	Meta     ContractMeta    `json:"meta"`
 	Actual   ActualPrice     `json:"actual"`
-	Markets  []ActualMarket  `json:"market"`
+	Markets  []ActualMarket  `json:"markets"`
 }
